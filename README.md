@@ -1,5 +1,5 @@
-
 # NASA Solutions Mechanism Guide
+
 
 ## Application Technologies
 
@@ -97,7 +97,7 @@ You must create only empty database in mysql server. Default database name is na
 
 &nbsp;
 
-##	Deployment Instructions
+## Deployment Instructions
 
 ### Github code
 
@@ -106,7 +106,7 @@ You must create only empty database in mysql server. Default database name is na
 3. Run `npm install`.
 4. If you wish to generate some sample data, run `node generateData.js`.
 
-###	 Nginx configuration (optional)
+### Nginx configuration (optional)
 1. Install nginx following the instructions at https://www.nginx.com/resources/wiki/start/topics/tutorials/install/. Use `http://nginx.org/packages/rhel/7/x86_64/` as the configuration value for the repository `baseurl`.
 
 2. Replace the contents of `/etc/nginx/conf.d/default.conf` with the following configuration. Replace `<ec2-host-name>` with the host name of your EC2 instance, and replace `3000` (if required) with the configured application port.
