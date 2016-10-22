@@ -1,34 +1,84 @@
 
-NASA Solutions Mechanism Guide Port
-
+# NASA Solutions Mechanism Guide
 ===============
 
 ## Application Technologies
 
--	IIS
--	IISnode https://github.com/tjanczuk/iisnode 
 -	Node.js http://nodejs.org/
+- Nginx
 -	Postman
 -	Git
 -	MySQL
 
+&nbsp;
+
 ## Application Setup
+Log in to the the AWS server and change to the root user.
+```
+sudo su -
+```
 
-We assume that IIS is already available on your server. If that is not the case, then follow the instructions at: http://www.iis.net/learn/get-started/whats-new-in-iis-8/installing-iis-8-on-windows-server-2012 
+Install the prerequisites for setup.
 
-Install latest version of iisnode from https://github.com/tjanczuk/iisnode. Follow their instructions to install node (Read the sections called “Prerequisites for using” and “Installing for IIS*”
+```
+yum install -y gcc git
+```
 
-Install MySQL from http://dev.mysql.com/downloads/ 
+Install Node.js 4.6.1 for Red Hat Enterprise Linux following the instructions at https://nodejs.org/en/download/package-manager/#enterprise-linux-and-fedora. To summarise, run
+```
+curl --silent --location https://rpm.nodesource.com/setup_4.x | bash -
+```
+then install Node.js 4.6.1 using
 
-Install Graphic Magic from http://www.graphicsmagick.org/download.html  
-Add it to your system PATH (you can check this option during installation)  
-Run ``gm`` in command line and verify it works  
-Run ``npm install`` to download latest/added dependencies
-Restart IIS run ``iisreset``
+```
+yum install -y nodejs
+```
+
+### Install MySQL
+Add the MySQL YUM repository
+```
+wget http://repo.mysql.com//mysql57-community-release-el7-9.noarch.rpm
+sudo yum localinstall mysql57-community-release-el7-9.noarch.rpm
+```
+
+Next, install MySQL server.
+```bash
+yum install -y mysql-community-server
+```
+
+Once the server is installed successfully, start the service using `service mysqld start`. Obtain the auto-generated temporary password for the root account using `grep 'temporary password' /var/log/mysqld.log`.
+
+Log in to mysql using the temporary password and change the password for the account.
+```
+mysql -uroot -p
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'T0pcoder!';
+```
+
+### Install GraphicsMagick
+GraphicsMagick will be compiled from source. Download the latest source from ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/GraphicsMagick-LATEST.tar.bz2
+```
+wget ftp://ftp.graphicsmagick.org/pub/GraphicsMagick/GraphicsMagick-LATEST.tar.bz2
+```
+
+Install bzip2 and other dependencies required to compile from source.
+```
+yum install -y bzip2 freetype-devel libpng-devel libjpeg-devel libtiff-devel libxml2-devel
+```
+
+Extract the GraphicsMagick source archive using `tar -jxvf GraphicsMagick-LATEST.tar.bz2` and change the current directory to the extracted folder. Run the following commands to configure and build GraphicsMagick.
+```
+./configure --prefix=/usr
+make
+make install
+```
+
+Run ``gm`` in command line to verify that the installation was successful.
+
+&nbsp;
 
 ## Configurations
 
-Configuration is done at the web.config file. If you open it, there will be a section called “appSettings”. In that section you can find the following options:
+You can edit env-sample.sh to configure the application for your environment. You can set the following options:
 
 - DB_HOST :	The host for MySQL server.	(i.e. localhost)
 - DB_NAME :	The MySQL database name. 	(i.e. nasa-smg)
@@ -38,92 +88,67 @@ Configuration is done at the web.config file. If you open it, there will be a se
 - RESET_TABLES : The flag if recreate database. It will drop and create again all tables. Test data is not inserted. Tables will be reset each time you run node app.	false
 - DOWNLOADS_DIR	: The path to directory where files are downloaded. default to <app folder>/downloads.
 
-Application is restarted every time you edit web.config.
+In order to apply the environment variables, run `. env-sample.sh`
+
+&nbsp;
 
 ## Database setup
 
 You must create only empty database in mysql server. Default database name is nasa-smg. Application will create all required tables.
 
+&nbsp;
+
 ##	Deployment Instructions
 
-### Github Code
+### Github code
 
-1. Checkout the code from this repository under 'www' folder of nodeiis installation (i.e. C:/Program Files/nodeiis/www/nasa-smg)
-2. On terminal, navigate to the code folder
-3. run "npm install"
+1. Clone the Github repository to your desired destination folder. For example, `git clone https://github.com/NASA-Tournament-Lab/NTL-Solution-Mechanism-Guide www`.
+2. Navigate to cloned folder in your terminal.
+3. Run `npm install`.
+4. If you wish to generate some sample data, run `node generateData.js`.
 
-###	 IIS configuration
+###	 Nginx configuration (optional)
+1. Install nginx following the instructions at https://www.nginx.com/resources/wiki/start/topics/tutorials/install/. Use `http://nginx.org/packages/rhel/7/x86_64/` as the configuration value for the repository `baseurl`.
 
-* Setup configuration nasa-smg/web.config file if needed. See section 4.
-* We have to be able to override configuration sections and to use URL authorization. Therefore we need to be sure that they are installed on IIS :
-  * For windows server 2012
-    * Click "Start button"
-    * In the search box, enter "Turn windows features on or off". Click on settings under the search box if nothing is displayed.
-    * In the features window, Click: "Internet Information Services"
-    * Click: "World Wide Web Services"
-    * Click: "Application Development Features"
-    * Check (enable) the features. You can check all, or leave out CGI.
-    * Click: "Security"
-    * Check (enable) the URL Authorization feature.
-    * Click "Next" until finish.
-  * For windows server 2008
-    * Go to the control panel
-    * In the search box, enter "Turn windows features on or off".
-    * The server manager will open.
-    * Go to the roles section
-    * Go to the Web Server (IIS) section
-    * Look for the Role Services subsection
-    * Click: "Application Development Features"
-    * Install all the services (you can leave out CGI).
-    * Click: "Security"
-    * Install the URL Authorization feature.
-* Install rewrite module http://www.iis.net/downloads/microsoft/url-rewrite
-* Now we have to enable the override of the configuration sections.
-  * Open the applicationHost.config file, located here: %windir%\system32\inetsrv\config\applicationHost.config
-  * Edit the "handlers" section.
-  * Change this line:
-       ``<section name="handlers" overrideModeDefault="Deny" />``
+2. Replace the contents of `/etc/nginx/conf.d/default.conf` with the following configuration. Replace `<ec2-host-name>` with the host name of your EC2 instance, and replace `3000` (if required) with the configured application port.
+    ````
+    server {
+        listen 80;
+    
+        server_name <ec2-host-name>;
+    
+        location / {
+            proxy_pass http://127.0.0.1:3000;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarder-For $proxy_add_x_forwarded_for;
+    
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_cache_bypass $http_upgrade;
+        }
+    }
+    ```
 
-    To:
-       ``<section name="handlers" overrideModeDefault="Allow" />``
+3. Verify that the nginx configuration is valid by running `nginx -t`.
 
-  * Edit the "authentication" section group
-  * Change this line:
-       ``<section name="anonymousAuthentication" overrideModeDefault="Deny" />``
+4. Start nginx using service `nginx start`.
 
-       To:
-       ``<section name="anonymousAuthentication" overrideModeDefault="Allow" />``
-       
-  * Change this line:
-       ``<section name="windowsAuthentication" overrideModeDefault="Deny" />``
+5. If you encounter a 502 bad gateway error while trying to access the application using nginx, you may need to adjust the SELinux permissions for nginx. Run the following commands to set the required permissions.
+    ```
+    sudo cat /var/log/audit/audit.log | grep nginx | grep denied | audit2allow -M nginx
+    semodule -i nginx.pp
+    ```
 
-       To:
-       ``<section name="windowsAuthentication" overrideModeDefault="Allow" />``
-       
-  * Save the file
-  * Restart IIS from the IIS manager
-* Finally, we need to install the SMG application on IIS.
-  * Open the IIS Manager
-  * Right click on “Sites” and click “Add Website”
-  * Set name to smg, choose physical path and set port to 5000 (you can use any port you want)
-  * Done! You can check now http://<IP>:5000/, to access admin portal use : http://<IP>:5000/admin/smg
-
-## Manage Authorization and Users
-
-* Open IIS
-* Select the application from left side panel
-* On the main panel, navigate down to "IIS" section and right click on "Authorization Rules" then click "Open Feature"
-* Current settings that it allows all users to do "GET" call to the SMG API, and give full access to users with "Administrators" role. Users with "Administrators" role can access http://<IP>:5000/admin/smg
-* You can Add other rule to allow other groups to get full access to manage the API, when adding a rule or editing "Administrators" rule you will use only two options, either to specify a group or a role, or specify set of users.
-
-## Assign a Windows User or Group to a Role 
-
-Follow this documentation
-http://technet.microsoft.com/en-us/library/cc731411.aspx
+&nbsp;
 
 ## Mapping between $ legend and SMG cost characteristics values
 
 Since cost characteristics values might change in database, we added a new configuration section under Admin portal (Configuration tab) i.e. http://<url>:<port>/admin/help#configuration . The section will list current cost characterstics values, and next to each value there is a drop down that contains three values $, $$ and $$$. By default all values are mapped to single dollar sign legend. When you are done with mapping, make sure to save changes.
 
+&nbsp;
+
 ## Mapping between time legend and SMG cost characteristics values
+
 Similar to $ mapping. You can map characteristic value to Low, Med or High. By default all values are mapped to Low.
