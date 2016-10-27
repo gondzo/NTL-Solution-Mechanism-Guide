@@ -1,5 +1,5 @@
 
-INSERT INTO `characteristictypevalue` (`name`, `description`, `value`, `id`, `characteristic_id`) VALUES
+INSERT INTO `characteristicTypeValue` (`name`, `description`, `value`, `id`, `characteristic_id`) VALUES
 ('< 3 months', 'lorem ipsum', 'value', 1, 5),
 ('< 6 months', 'lorem ipsum', 'value', 2, 5),
 ('< 1 year', 'lorem ipsum', 'value', 3, 5),

@@ -109,7 +109,7 @@ To create the MySQL database, follow these steps.
 1. Clone the Github repository to your desired destination folder. For example, `git clone https://github.com/NASA-Tournament-Lab/NTL-Solution-Mechanism-Guide www`.
 2. Change the working directory to the cloned folder in your terminal.
 3. Run `npm install`.
-4. If you wish to generate some sample data, run `node generateRealFrontendData.js`.
+4. (optional) Generate some sample data, run `node generateRealFrontendData.js`.
 
 ### Starting the app
 
