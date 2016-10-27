@@ -96,6 +96,7 @@ In order to apply the environment variables, run `. env-sample.sh`
 You must create only empty database in MySQL server. Default database name is `nasa-smg`. Application will create all required tables.
 
 To create the MySQL database, follow these steps.
+
 1. Run `mysql -uroot -p` at the shell and enter the password that you configured for the root user after installing MySQL.
 2. Execute `CREATE DATABASE \`nasa-smg\`;` after successful login with the MySQL client.
 
@@ -114,7 +115,7 @@ To create the MySQL database, follow these steps.
 
 Run `node app` in the working directory to start the application. You should now be able to access `http://<url-to-aws-instance>:3000/` where `<url-to-aws-instance>` is the URL or IP address of the AWS instance the application was deployed to, and 3000 is the configured port.
 
-Please make sure to enable access for the port for the instance's security policy (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/authorizing-access-to-an-instance.html).
+Please make sure to enable access to the configured port by updating the instance's security policy (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/authorizing-access-to-an-instance.html).
 
 ### Nginx configuration (optional)
 1. Install nginx following the instructions at https://www.nginx.com/resources/wiki/start/topics/tutorials/install/. Use `http://nginx.org/packages/rhel/7/x86_64/` as the configuration value for the repository `baseurl`.
