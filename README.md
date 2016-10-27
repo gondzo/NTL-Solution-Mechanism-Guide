@@ -98,7 +98,7 @@ You must create only empty database in MySQL server. Default database name is `n
 To create the MySQL database, follow these steps.
 
 1. Run `mysql -uroot -p` at the shell and enter the password that you configured for the root user after installing MySQL.
-2. Execute `CREATE DATABASE \`nasa-smg\`;` after successful login with the MySQL client.
+2. Execute ``CREATE DATABASE `nasa-smg`;`` after successful login with the MySQL client.
 
 &nbsp;
 
