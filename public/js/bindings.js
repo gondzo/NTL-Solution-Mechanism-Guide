@@ -451,12 +451,14 @@ ko.bindingHandlers.dollarSign = {
         var max = 1;
         var title = "";
         _.each(values, function (value) {
-            var sign = mapping[value.valueType.id];
-            if (sign) {
-                var dollarValue = sign.length;
-                if (dollarValue >= max) {
-                    max = dollarValue;
-                    title = value.valueType.name;
+            if (value.valueType) {
+                var sign = mapping[value.valueType.id];
+                if (sign) {
+                    var dollarValue = sign.length;
+                    if (dollarValue >= max) {
+                        max = dollarValue;
+                        title = value.valueType.name;
+                    }
                 }
             }
         });

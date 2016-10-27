@@ -3,11 +3,11 @@
 
 ## Application Technologies
 
-- Node.js http://nodejs.org/
-- Nginx
-- Postman
+- Node.js 4.6.1
+- Nginx 1.10.2
+- MySQL 5.7
 - Git
-- MySQL
+- Postman
 
 &nbsp;
 
@@ -20,7 +20,7 @@ sudo su -
 Install the prerequisites for setup.
 
 ```
-yum install -y gcc git
+yum install -y gcc git wget
 ```
 
 Install Node.js 4.6.1 for Red Hat Enterprise Linux following the instructions at https://nodejs.org/en/download/package-manager/#enterprise-linux-and-fedora. To summarise, run
@@ -71,7 +71,7 @@ make
 make install
 ```
 
-Run ``gm`` in command line to verify that the installation was successful.
+Run `gm` in the shell to verify that the installation was successful.
 
 &nbsp;
 
@@ -84,8 +84,8 @@ You can edit env-sample.sh to configure the application for your environment. Yo
 - DB_PORT	: The port for MySQL server.	(default 3306)
 - DB_USER	: The username to login to MySQL.	(default root)
 - DB_PASSWORD : The password to mysql server.	(default empty password )
-- RESET_TABLES : The flag if recreate database. It will drop and create again all tables. Test data is not inserted. Tables will be reset each time you run node app.	false
-- DOWNLOADS_DIR	: The path to directory where files are downloaded. default to <app folder>/downloads.
+- RESET_TABLES : The flag which indicates if the database tables should be created afresh. It will drop and create again all tables. Test data is not inserted. Tables will be reset each time you run node app. (default false)
+- DOWNLOADS_DIR	: The path to directory where files are downloaded. Default to `<app folder>/downloads`.
 
 In order to apply the environment variables, run `. env-sample.sh`
 
@@ -93,7 +93,11 @@ In order to apply the environment variables, run `. env-sample.sh`
 
 ## Database setup
 
-You must create only empty database in mysql server. Default database name is nasa-smg. Application will create all required tables.
+You must create only empty database in MySQL server. Default database name is `nasa-smg`. Application will create all required tables.
+
+To create the MySQL database, follow these steps.
+1. Run `mysql -uroot -p` at the shell and enter the password that you configured for the root user after installing MySQL.
+2. Execute `CREATE DATABASE \`nasa-smg\`;` after successful login with the MySQL client.
 
 &nbsp;
 
@@ -102,9 +106,15 @@ You must create only empty database in mysql server. Default database name is na
 ### Github code
 
 1. Clone the Github repository to your desired destination folder. For example, `git clone https://github.com/NASA-Tournament-Lab/NTL-Solution-Mechanism-Guide www`.
-2. Navigate to cloned folder in your terminal.
+2. Change the working directory to the cloned folder in your terminal.
 3. Run `npm install`.
-4. If you wish to generate some sample data, run `node generateData.js`.
+4. If you wish to generate some sample data, run `node generateRealFrontendData.js`.
+
+### Starting the app
+
+Run `node app` in the working directory to start the application. You should now be able to access `http://<url-to-aws-instance>:3000/` where `<url-to-aws-instance>` is the URL or IP address of the AWS instance the application was deployed to, and 3000 is the configured port.
+
+Please make sure to enable access for the port for the instance's security policy (http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/authorizing-access-to-an-instance.html).
 
 ### Nginx configuration (optional)
 1. Install nginx following the instructions at https://www.nginx.com/resources/wiki/start/topics/tutorials/install/. Use `http://nginx.org/packages/rhel/7/x86_64/` as the configuration value for the repository `baseurl`.
