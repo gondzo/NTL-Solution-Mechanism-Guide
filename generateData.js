@@ -22,16 +22,16 @@ var testData = {
         { id: 3, name: 'Cloudspoke solution', description: DESC }
     ],
     example: [
-        { id: 1, smg_id: 1, name: 'ABC Example 1', description: DESC },
-        { id: 2, smg_id: 1, name: 'ABC Example 2', description: DESC },
-        { id: 3, smg_id: 1, name: 'ABC Example 3', description: DESC },
-        { id: 4, smg_id: 2, name: 'XYZ Example 1', description: DESC },
-        { id: 5, smg_id: 2, name: 'XYZ Example 2', description: DESC }
+        { id: 1, smg_id: 1, name: 'ABC Example 1', description: DESC, type: '' },
+        { id: 2, smg_id: 1, name: 'ABC Example 2', description: DESC, type: '' },
+        { id: 3, smg_id: 1, name: 'ABC Example 3', description: DESC, type: '' },
+        { id: 4, smg_id: 2, name: 'XYZ Example 1', description: DESC, type: '' },
+        { id: 5, smg_id: 2, name: 'XYZ Example 2', description: DESC, type: '' }
     ],
     characteristicType: [
-        { id: 1, name: 'text', description: DESC },
-        { id: 2, name: 'piclist', description: DESC },
-        { id: 3, name: 'multiple', description: DESC }
+        { id: 1, name: 'text', description: DESC, group: 0 },
+        { id: 2, name: 'piclist', description: DESC, group: 0 },
+        { id: 3, name: 'multiple', description: DESC, group: 0 }
     ],
     characteristic: [
         { id: 1, type_id: 1, sort: 0, name: 'Summary', description: DESC },
