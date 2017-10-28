@@ -1,0 +1,33 @@
+version: '2'
+
+services:
+  app:
+    image: ntl_app
+    build: .
+    depends_on:
+      - mysql
+    environment:
+      DB_HOST: mysql
+      DB_NAME: $DB_NAME
+      DB_PORT: 3306
+      DB_USER: $DB_USER
+      DB_PASSWORD: $DB_PASSWORD
+      RESET_TABLES: $RESET_TABLES
+      DOWNLOADS_DIR: /downloads
+      FILES_VERSION: $FILES_VERSION
+    ports:
+      - 3000:$APP_PORT
+    volumes:
+       - "$DOWNLOADS_DIR:/downloads"
+    command: ["./wait-for-it.sh",  "mysql:3306", "--", "node", "app"]
+  mysql:
+    image: mysql
+    ports:
+        - 3306:3306
+    expose:
+      - 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: $DB_PASSWORD
+      MYSQL_DATABASE: $DB_NAME
+      MYSQL_USER: $DB_USER
+      MYSQL_PASSWORD: $DB_PASSWORD

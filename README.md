@@ -8,8 +8,38 @@
 - MySQL 5.7
 - Git
 - Postman
+- Docker
+- Openshift
 
 &nbsp;
+
+## Docker deployment
+Install docker and docker-compose with instructions from https://docs.docker.com/engine/installation/linux/docker-ce/centos/ and https://www.unixmen.com/docker-compose-install-centos-7/
+
+### Configuration
+
+In the .env file you can configure these parameters:
+- DB_NAME=nasa-smg # name of the database
+- DB_USER=smg # database user
+- DB_PASSWORD=T0pcoder # database password
+- RESET_TABLES=false # weather to reset the db tables and data
+- DOWNLOADS_DIR=./downloads #path to a directory where files will be downloaded. Change this to a and existing directory outside the directory of this document
+- FILES_VERSION=1.0.1 # Files version
+- APP_PORT=3000 # application port
+
+### Running
+To start the application just execute `docker-compose up` in the base directory. Application will be available on http://localhost:APP_PORT
+
+### Generating sample data
+To generate sample data, after starting the application, in a new terminal run `docker-compose exec app node generateData.js` or `docker-compose exec app node generateFrontendData.js` or `docker-compose exec app node generaterealFrontendData.js`
+
+## Openshift deployment
+
+- Download the CLI tools, add the `oc` binary to path and log in to your openshift cluster. More details are available in your openshift Web console at help > Command Line Tools
+- Create a new project with `oc new-project <project_name>  --description="<description>" --display-name="<display_name>"` (use any values for name, description and display name)
+- Create the application with `oc process -f openshiftConfig.json | oc create -f -`
+- To get app url, execute `oc get routes`
+- To execute a command in the container (generate test data) first execute `oc get pods` to get a list of active pods and note the NAME of the running pod. Then execute `oc exec <POD_NAME> -c ntlapp node generateData.js`
 
 ## Application Setup
 Log in to the the AWS server and change to the root user.

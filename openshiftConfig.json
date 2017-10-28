@@ -1,0 +1,278 @@
+{
+  "kind": "Template",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "autoapi-persistent",
+    "annotations": {
+      "openshift.io/display-name": "NTL app",
+      "description": "NTL app",
+      "iconClass": "icon-postgresql",
+      "tags": "database,postgresql",
+      "template.openshift.io/long-description": "NTL app",
+      "template.openshift.io/provider-display-name": "Topcoder"
+    }
+  },
+  "message": "The following service(s) have been created in your project: ${SERVICE_NAME}.\n\n       /\n\n",
+  "labels": {
+    "template": "ntlapp-persistent-template"
+  },
+  "objects": [
+    
+    {
+      "kind": "Service",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${SERVICE_NAME}"
+      },
+      "spec": {
+        "ports": [
+          {
+            "name": "ntlapp",
+            "protocol": "TCP",
+            "port": 3000,
+            "targetPort": 3000,
+            "nodePort": 0
+          }
+        ],
+        "selector": {
+          "app": "${SERVICE_NAME}",
+          "deploymentconfig": "${SERVICE_NAME}"
+        },
+        "type": "ClusterIP",
+        "sessionAffinity": "None"
+      },
+      "status": {
+        "loadBalancer": {}
+      }
+    },
+    {
+	  "apiVersion": "v1",
+	  "kind": "Route",
+	  "metadata": {
+	    "name": "ntlapp"
+	  },
+	  "spec": {
+	    "to": {
+	      "kind": "Service",
+	      "name": "${SERVICE_NAME}"
+	    },
+	    "port": {
+	      "targetPort": "ntlapp"
+	    }
+	  }
+	},
+  {
+    "kind": "PersistentVolumeClaim",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "${SERVICE_NAME}"
+    },
+    "spec": {
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "resources": {
+        "requests": {
+          "storage": "1Gi"
+        }
+      }
+    }
+  },
+  {
+    "kind": "PersistentVolumeClaim",
+    "apiVersion": "v1",
+    "metadata": {
+      "name": "downloads"
+    },
+    "spec": {
+      "accessModes": [
+        "ReadWriteOnce"
+      ],
+      "resources": {
+        "requests": {
+          "storage": "1Gi"
+        }
+      }
+    }
+  },
+    {
+      "kind": "DeploymentConfig",
+      "apiVersion": "v1",
+      "metadata": {
+        "name": "${SERVICE_NAME}",
+        "creationTimestamp": null,
+        "labels": {
+          "name": "${SERVICE_NAME}"
+        }
+      },
+      "spec":{
+        "replicas": 1,
+        "selector": {
+          "app": "${SERVICE_NAME}",
+          "deploymentconfig": "${SERVICE_NAME}"
+        },
+        "strategy": {
+          "activeDeadlineSeconds": 21600,
+          "resources": {
+          },
+          "rollingParams": {
+            "intervalSeconds": 1,
+            "maxSurge": "25%",
+            "maxUnavailable": "25%",
+            "timeoutSeconds": 600,
+            "updatePeriodSeconds": 1
+          },
+          "type": "Rolling"
+        },
+        "template":{
+          "metadata": {
+            "creationTimestamp": null,
+            "labels": {
+              "app": "${SERVICE_NAME}",
+              "deploymentconfig": "${SERVICE_NAME}"
+            }
+          },
+          "spec": {
+            "volumes": [
+              {
+                "name":"tmp",
+                "emptyDir": {}
+              },
+              {
+                "name": "${SERVICE_NAME}-data",
+                "persistentVolumeClaim": {
+                  "claimName": "${SERVICE_NAME}"
+                }
+              },
+              {
+                "name": "downloads-data",
+                "persistentVolumeClaim": {
+                  "claimName": "downloads"
+                }
+              }
+            ],
+            "containers": [
+              {
+                "name": "ntlapp",
+                "image": "gondzo/ntl_app",
+                "ports": [
+                  {
+                    "containerPort": 3000,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env":[
+                  {
+                    "name": "DB_NAME",
+                    "value": "nasa_smg"
+                  },
+                  {
+                    "name": "DB_USER",
+                    "value": "smg"
+                  },
+                  {
+                    "name": "DB_PASSWORD",
+                    "value": "T0pcoder"
+                  },
+                  {
+                    "name": "RESET_TABLES",
+                    "value": "false"
+                  },
+                  {
+                    "name": "DOWNLOADS_DIR",
+                    "value": "/downloads"
+                  },
+                  {
+                    "name": "FILES_VERSION",
+                    "value": "1.0.1"
+                  },
+                  {
+                    "name": "APP_PORT",
+                    "value": "3000"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name":"tmp",
+                    "mountPath":"/tmp"
+                  },
+                  {
+                    "name":"downloads-data",
+                    "mountPath":"/downloads"
+                  }
+                ],
+                "terminationMessagePath": "/dev/termination-log",
+                "imagePullPolicy": "IfNotPresent",
+                "capabilities": {},
+                "securityContext": {
+                  "capabilities": {},
+                  "privileged": false
+                }
+              },
+              {
+                "name": "mysql",
+                "image": "registry.access.redhat.com/rhscl/mysql-56-rhel7",
+                "ports": [
+                  {
+                    "containerPort": 3306,
+                    "protocol": "TCP"
+                  }
+                ],
+                "env":[
+                  {
+                    "name": "MYSQL_USER",
+                    "value": "smg"
+                  },
+                  {
+                    "name": "MYSQL_PASSWORD",
+                    "value": "T0pcoder"
+                  },
+                  {
+                    "name": "MYSQL_DATABASE",
+                    "value": "nasa_smg"
+                  },
+                  {
+                    "name": "MYSQL_ROOT_PASSWORD",
+                    "value": "T0pcoder"
+                  }
+                ],
+                "resources": {},
+                "volumeMounts": [
+                  {
+                    "name":"tmp",
+                    "mountPath":"/tmp"
+                  },
+                  {
+                    "name": "${SERVICE_NAME}-data",
+                    "mountPath": "/var/lib/mysql/data"
+                  }
+                ],
+                "terminationMessagePath": "/dev/termination-log",
+                "imagePullPolicy": "IfNotPresent",
+                "capabilities": {},
+                "securityContext": {
+                  "capabilities": {},
+                  "privileged": false
+                }
+              }
+            ],
+            "restartPolicy": "Always",
+            "dnsPolicy": "ClusterFirst",
+            "serviceAccount": ""
+          }
+        }
+      },  
+      "status": {}
+    }
+  ],
+  "parameters": [
+    {
+      "name": "SERVICE_NAME",
+      "displayName": "App Service Name",
+      "description": "The name of the OpenShift Service exposed for the application. No need to change the default value.",
+      "value": "ntl",
+      "required": true
+    }
+  ]
+}
