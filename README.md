@@ -31,7 +31,7 @@ In the .env file you can configure these parameters:
 To start the application just execute `docker-compose up` in the base directory. Application will be available on http://localhost:APP_PORT
 
 ### Generating sample data
-To generate sample data, after starting the application, in a new terminal run `docker-compose exec app node generateData.js` or `docker-compose exec app node generateFrontendData.js` or `docker-compose exec app node generaterealFrontendData.js`
+To generate sample data, after starting the application, in a new terminal run `docker-compose exec app node generateRealFrontendData.js`
 
 ## Openshift deployment
 
